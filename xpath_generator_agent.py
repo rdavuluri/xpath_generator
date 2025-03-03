@@ -1,7 +1,6 @@
 import streamlit as st
 import openai
 import re
-from typing import List, Dict, Any
 
 # Define the XPath generation prompt
 XPATH_GENERATION_PROMPT = """
