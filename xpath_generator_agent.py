@@ -4,31 +4,53 @@ import re
 
 # Define the XPath generation prompt
 XPATH_GENERATION_PROMPT = """
-Generate the top 5 XPath expressions to locate a target element on a webpage. Follow these guidelines:
+Generate the top 5 XPath expressions to locate a target element within the provided HTML context. Prioritize accuracy, robustness, and performance. Follow these guidelines meticulously:
 
-**Input Processing:**
-- HTML Snippet: Analyze the provided HTML structure
-- Element Description: Understand the target element characteristics
-- Page Context: Consider the broader page structure when relevant
-- Dynamic Attributes: Respect flags about reliable vs dynamic attributes
-- Element State: Account for visible/enabled/expanded states if specified
-- Ranking Preferences: Apply user's ranking criteria if provided
+**Input Processing and Contextual Understanding:**
 
-**XPath Construction Guidelines:**
-- Avoid dynamic attributes unless specified as reliable
-- Prefer stable attributes (id, name, type, role, aria-*)
-- Use text-based or structural selectors when attributes are unreliable
-- Create diverse expressions using different XPath axes
-- Consider performance implications of different approaches
-- Handle iframe scenarios when applicable
-- Include state-aware predicates when needed
-- Be cautious with index-based selectors
+1.  **HTML Snippet Analysis:**
+    * Thoroughly parse the provided HTML snippet to understand the DOM structure, including parent-child relationships, sibling relationships, and attribute values.
+    * Identify potential iframe elements and adjust XPath construction accordingly.
+2.  **Target Element Description:**
+    * Precisely interpret the target element's description, including its text content, attributes, and expected behavior.
+    * Pay close attention to any specified states (e.g., visible, enabled, expanded, selected).
+3.  **Page Context Awareness:**
+    * Consider the broader page structure, if available, to ensure the generated XPath expressions are not overly specific to the provided snippet.
+    * Analyze surrounding elements and their attributes to identify stable locators.
+4.  **Attribute Reliability Assessment:**
+    * Distinguish between static and dynamic attributes.
+    * Prefer static attributes (e.g., `id`, `name`, `type`, `role`, `aria-*`) for robustness.
+    * Use dynamic attributes only when explicitly specified as reliable or when no other stable locators are available.
+5.  **Element State Handling:**
+    * Incorporate state-aware predicates (e.g., `[@aria-expanded='true']`, `[@disabled='false']`, `[contains(@class, 'visible')]`) when the target element's state is relevant.
+6.  **User Ranking Preferences:**
+    * If specific ranking criteria are provided (e.g., prioritize `id`, minimize use of `contains()`), strictly adhere to them.
 
-For each XPath, provide:
-1. The complete XPath expression
-2. One key advantage
-3. One key disadvantage
-4. Brief explanation of the syntax and logic
+**XPath Construction and Output Format:**
+
+1.  **XPath Expression Generation:**
+    * Construct 5 distinct XPath expressions, each offering a unique approach to locating the target element.
+    * Aim for diversity in XPath axes (e.g., `//`, `/`, `ancestor::`, `descendant::`, `following-sibling::`, `preceding-sibling::`).
+    * Minimize the use of index-based selectors (`[n]`) due to their fragility.
+    * Favor text-based selectors (`text()`, `contains(text(), '...')`) or structural selectors when attributes are unreliable.
+    * Handle iframe cases by preceding the target xpath with the iframe xpath.
+2.  **Output Format for Each XPath:**
+    * "XPath: [The complete XPath expression]"
+    * "Advantage: [A concise explanation of the expression's key strength (e.g., robustness, simplicity, performance)]"
+    * "Disadvantage: [A brief description of the expression's potential weaknesses (e.g., fragility, performance overhead)]"
+    * "Explanation: [A detailed explanation of the syntax and logic used in the XPath expression, including the chosen axes, predicates, and functions.]"
+
+**XPath Construction Best Practices:**
+
+* **Robustness:** Prioritize XPath expressions that are resilient to minor changes in the HTML structure.
+* **Performance:** Consider the performance implications of different XPath approaches. Avoid overly complex expressions or those that traverse a large portion of the DOM.
+* **Maintainability:** Aim for XPath expressions that are easy to understand and maintain.
+* **Clarity:** Write clear and concise explanations for each XPath expression, making it easy to understand the logic behind it.
+* **Specificity vs. Generality:** Find the balance of specific and general xpaths. Too specific, and small changes break it. Too general, and it grabs the wrong element.
+* **Use of contains() and starts-with():** Use these functions when dealing with dynamic text or attribute values. But use them carefully.
+* **Use of normalize-space():** Use this function when dealing with text that contains whitespace.
+
+By adhering to these guidelines, you will generate XPath expressions that are accurate, robust, and efficient for locating target elements within the provided HTML context.
 """
 
 class XPathGeneratorAgent:
